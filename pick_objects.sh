@@ -10,11 +10,13 @@ xterm  -e  " roslaunch turtlebot_gazebo turtlebot_world.launch world_file:=$catk
 
 sleep 5
 
-#Launch gmapping demo
+#Launch amcl demo
 xterm -e " roslaunch turtlebot_gazebo amcl_demo.launch map_file:=$catkin_src_dir/Worlds/myMap.yaml" &
 
-#Launch RTAB Map for custom bot
-#xterm -e "roslaunch slam_bot mapping.launch" &
+sleep 2
+
+#Launch navigation pick_objects node
+xterm -e " source $catkin_dir/devel/setup.bash; rosrun pick_objects pick_objects_node" &
 sleep 2
 
 #Launch rviz

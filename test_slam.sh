@@ -1,5 +1,7 @@
 #!/bin/sh
-catkin_src_dir=/home/workspace/catkin_ws/src
+catkin_dir=/home/workspace/catkin_ws
+catkin_src_dir=$catkin_dir/src
+
 #Launch turtlebot in the custom world
 xterm  -e  " roslaunch turtlebot_gazebo turtlebot_world.launch world_file:=$catkin_src_dir/Worlds/big_U_world.world" &
 
