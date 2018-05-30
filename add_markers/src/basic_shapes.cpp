@@ -29,6 +29,16 @@
 
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
+#include <std_msgs/UInt8.h>
+
+uint8_t cycle = 0;
+
+ void pickupDropoffCallback(const std_msgs::UInt8& msg)
+ {
+   ROS_INFO("Received message! Message is: %d ", msg.data);
+   cycle = msg.data;
+   return;
+ }
 
 int main( int argc, char** argv )
 {
@@ -36,7 +46,7 @@ int main( int argc, char** argv )
   ros::NodeHandle n;
   ros::Rate r(0.2);
   ros::Publisher marker_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 1);
-  uint32_t cycle = 0;
+  ros::Subscriber location_sub = n.subscribe("/destination_reached", 1, pickupDropoffCallback);
 
   // Set our initial shape type to be a cube
   uint32_t shape = visualization_msgs::Marker::CUBE;
@@ -69,13 +79,13 @@ int main( int argc, char** argv )
         marker.pose.orientation.y = 0.0;
         marker.pose.orientation.z = 0.0;
         marker.pose.orientation.w = 1.0;
-        cycle += 1;
+        //cycle += 1;
         break;
       case 1:
         ROS_INFO("Deleting object");
         sleep(5);
         marker.action = visualization_msgs::Marker::DELETE;
-        cycle += 1;
+        //cycle += 1;
         break;
       case 2: 
         sleep(5);

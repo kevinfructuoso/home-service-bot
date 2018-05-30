@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include <std_msgs/UInt8.h>
 
 // Define a client for to send goal requests to the move_base server through a SimpleActionClient
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
@@ -8,9 +9,13 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 int main(int argc, char** argv){
   // Initialize the simple_navigation_goals node
   ros::init(argc, argv, "simple_navigation_goals");
+  ros::NodeHandle n;
 
   //tell the action client that we want to spin a thread by default
   MoveBaseClient ac("move_base", true);
+
+  //set up publisher to broadcast if robot is at pick up location
+  ros::Publisher location_pub = n.advertise<std_msgs::UInt8>("/destination_reached", 1);
 
   // Wait 5 sec for move_base action server to come up
   while(!ac.waitForServer(ros::Duration(5.0))){
@@ -44,6 +49,10 @@ int main(int argc, char** argv){
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
   {
     ROS_INFO("Hooray, the robot reached the first zone");
+    std_msgs::UInt8 msg;
+    msg.data = 1;
+    ROS_INFO("The message is %d", msg.data);
+    location_pub.publish(msg);
     sleep(5);
   }
   else
@@ -61,9 +70,18 @@ int main(int argc, char** argv){
   
   // Check if the robot reached its goal
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+  {
     ROS_INFO("Hooray, the robot reached both zones");
+    sleep(5);
+    std_msgs::UInt8 msg;
+    msg.data = 2;
+    ROS_INFO("The message is %d", msg.data);
+    location_pub.publish(msg);
+  }
   else
+  {
     ROS_INFO("The robot failed to reach the second zone");
+  }
   
   return 0;
 }
