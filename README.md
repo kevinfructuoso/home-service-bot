@@ -23,3 +23,14 @@ rosdep -i install turtlebot_gazebo -y
 cd ~/catkin_ws
 catkin_make
 ```
+
+To run the home service robot script file, open a terminal and run the following commands.
+```sh
+cd ~/catkin_ws
+source devel/setup.bash
+./src/home_service.sh
+```
+
+If everything is ready to rock'n'roll, the below is the result of running these commands.
+
+<p align="center"><img src="./resources/home-service-bot.gif"></p>

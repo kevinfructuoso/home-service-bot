@@ -31,7 +31,7 @@ int main(int argc, char** argv){
   goal2.target_pose.header.frame_id = "map";
   goal2.target_pose.header.stamp = ros::Time::now();
 
-  // Define a position and orientation for the robot to reach
+  // Define a position and orientation for the robot to reach at each goal
   goal.target_pose.pose.position.x = 3.95;
   goal.target_pose.pose.position.y = 7.5;
   goal.target_pose.pose.orientation.w = 1.0;
@@ -39,7 +39,7 @@ int main(int argc, char** argv){
   goal2.target_pose.pose.position.y = 5.0;
   goal2.target_pose.pose.orientation.w = 1.0;
 
-   // Send the goal position and orientation for the robot to reach
+   // Send the first goal position and orientation for the robot to reach
   ROS_INFO("Sending goal");
   ac.sendGoal(goal);
 
@@ -50,10 +50,14 @@ int main(int argc, char** argv){
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
   {
     ROS_INFO("Hooray, the robot reached the first zone");
+
+    //Notify the add_markers_node that the first goal has been reached
     std_msgs::UInt8 msg;
     msg.data = 1;
     ROS_INFO("The message is %d", msg.data);
     location_pub.publish(msg);
+
+    //Wait for 5 seconds before continuing to next goal
     sleep(5);
   }
   else
@@ -73,6 +77,8 @@ int main(int argc, char** argv){
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
   {
     ROS_INFO("Hooray, the robot reached both zones");
+
+    //Notify the add_markers_node that the second goal has been reached
     std_msgs::UInt8 msg2;
     msg2.data = 3;
     ROS_INFO("The message is %d", msg2.data);
