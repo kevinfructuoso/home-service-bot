@@ -28,15 +28,16 @@ int main(int argc, char** argv){
   // set up the frame parameters
   goal.target_pose.header.frame_id = "map";
   goal.target_pose.header.stamp = ros::Time::now();
-  goal2.target_pose.header.frame_id = "base_link";
+  goal2.target_pose.header.frame_id = "map";
   goal2.target_pose.header.stamp = ros::Time::now();
 
   // Define a position and orientation for the robot to reach
-  goal.target_pose.pose.position.x = 1.0;
+  goal.target_pose.pose.position.x = 3.95;
+  goal.target_pose.pose.position.y = 7.5;
   goal.target_pose.pose.orientation.w = 1.0;
-  goal2.target_pose.pose.position.x = -5.0;
+  goal2.target_pose.pose.position.x = -3.5;
   goal2.target_pose.pose.position.y = 5.0;
-  goal2.target_pose.pose.orientation.w = -5.0;
+  goal2.target_pose.pose.orientation.w = 1.0;
 
    // Send the goal position and orientation for the robot to reach
   ROS_INFO("Sending goal");
@@ -72,16 +73,17 @@ int main(int argc, char** argv){
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
   {
     ROS_INFO("Hooray, the robot reached both zones");
-    sleep(5);
-    std_msgs::UInt8 msg;
-    msg.data = 2;
-    ROS_INFO("The message is %d", msg.data);
-    location_pub.publish(msg);
+    std_msgs::UInt8 msg2;
+    msg2.data = 3;
+    ROS_INFO("The message is %d", msg2.data);
+    location_pub.publish(msg2);
   }
   else
   {
     ROS_INFO("The robot failed to reach the second zone");
   }
+
+  sleep(5);
   
   return 0;
 }

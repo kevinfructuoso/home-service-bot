@@ -33,10 +33,11 @@
 
 uint8_t cycle = 0;
 
- void pickupDropoffCallback(const std_msgs::UInt8& msg)
+ void pickupDropoffCallback(const std_msgs::UInt8::ConstPtr& msg)
  {
-   ROS_INFO("Received message! Message is: %d ", msg.data);
-   cycle = msg.data;
+   ROS_INFO("Received message!");
+   ROS_INFO("Message is: %d ", msg->data);
+   cycle = msg->data;
    return;
  }
 
@@ -44,15 +45,17 @@ int main( int argc, char** argv )
 {
   ros::init(argc, argv, "add_markers");
   ros::NodeHandle n;
-  ros::Rate r(0.2);
+  ros::Rate r(5);
   ros::Publisher marker_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 1);
   ros::Subscriber location_sub = n.subscribe("/destination_reached", 1, pickupDropoffCallback);
+  bool done = false;
 
   // Set our initial shape type to be a cube
   uint32_t shape = visualization_msgs::Marker::CUBE;
 
   while (ros::ok())
   {
+    ros::spinOnce();
     visualization_msgs::Marker marker;
     // Set the frame ID and timestamp.  See the TF tutorials for information on these.
     marker.header.frame_id = "/map";
@@ -70,10 +73,10 @@ int main( int argc, char** argv )
     switch (cycle)
     {
       case 0:
-        ROS_INFO("Adding object for picking");
+        ROS_INFO_ONCE("Adding object for picking");
         marker.action = visualization_msgs::Marker::ADD;
-        marker.pose.position.x = 1.0;
-        marker.pose.position.y = 0;
+        marker.pose.position.x = 3.95;
+        marker.pose.position.y = 7.5;
         marker.pose.position.z = 0;
         marker.pose.orientation.x = 0.0;
         marker.pose.orientation.y = 0.0;
@@ -82,31 +85,33 @@ int main( int argc, char** argv )
         //cycle += 1;
         break;
       case 1:
-        ROS_INFO("Deleting object");
-        sleep(5);
+        ROS_INFO_ONCE("Deleting object");
         marker.action = visualization_msgs::Marker::DELETE;
-        //cycle += 1;
+        cycle += 1;
         break;
-      case 2: 
-        sleep(5);
-        ROS_INFO("Placing object at drop-off location");
+      case 2:
+        marker.action = visualization_msgs::Marker::DELETE;
+        break; // do nothing while waiting to reach drop off location
+      case 3: 
+        ROS_INFO_ONCE("Placing object at drop-off location");
         marker.action = visualization_msgs::Marker::ADD;
-        marker.pose.position.x = -5.0;
+        marker.pose.position.x = -3.5;
         marker.pose.position.y = 5.0;
         marker.pose.position.z = 0;
         marker.pose.orientation.x = 0.0;
         marker.pose.orientation.y = 0.0;
         marker.pose.orientation.z = 0.0;
         marker.pose.orientation.w = 1.0;
+        done = true;
         break;
     }
     // Set the marker action.  Options are ADD, DELETE, and new in ROS Indigo: 3 (DELETEALL)
     //marker.action = visualization_msgs::Marker::ADD;
 
     // Set the scale of the marker -- 1x1x1 here means 1m on a side
-    marker.scale.x = 0.25;
-    marker.scale.y = 0.25;
-    marker.scale.z = 0.25;
+    marker.scale.x = 0.4;
+    marker.scale.y = 0.4;
+    marker.scale.z = 0.4;
 
     // Set the color -- be sure to set alpha to something non-zero!
     marker.color.r = 1.0f;
@@ -144,6 +149,10 @@ int main( int argc, char** argv )
       break;
     }
     */
+    // if last marker published and noted as done exit
+    if (done)
+      return 0;
+
     r.sleep();
   }
   return 0;
